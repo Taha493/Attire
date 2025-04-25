@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard/ProductCard";
-import { productService } from "../../services/api";
+// import { productService } from "../../services/api";
 import { toast } from "react-hot-toast";
 
 const TopSellingPage = () => {
@@ -20,8 +20,8 @@ const TopSellingPage = () => {
       try {
         // Call the API service to get top selling products
         // Limit to 4 items for the homepage showcase
-        const response = await productService.getTopSelling({ limit: 4 });
-        setProducts(response);
+        // const response = await productService.getTopSelling({ limit: 4 });
+        // setProducts(response);
       } catch (err) {
         console.error("Error fetching top selling products:", err);
         setError("Failed to load popular products. Please try again later.");

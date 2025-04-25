@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProductCard from "../ProductCard/ProductCard";
-import { productService } from "../../services/api";
+// import { productService } from "../../services/api";
 import { toast } from "react-hot-toast";
 
 const NewArrivals = () => {
@@ -14,10 +14,10 @@ const NewArrivals = () => {
   useEffect(() => {
     const fetchNewArrivals = async () => {
       try {
-        const newArrivalsData = await productService.getNewArrivals({
-          limit: 4,
-        });
-        setProducts(newArrivalsData);
+        // const newArrivalsData = await productService.getNewArrivals({
+        //   limit: 4,
+        // });
+        // setProducts(newArrivalsData);
       } catch (error) {
         console.error("Error fetching new arrivals:", error);
         setProducts([]);

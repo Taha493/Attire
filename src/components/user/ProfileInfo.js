@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Pencil, Plus, X } from "lucide-react";
-import { userService } from "../../services/api";
+// import { userService } from "../../services/api";
 
 const ProfileInfo = ({ user, refreshUser }) => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -59,10 +59,10 @@ const ProfileInfo = ({ user, refreshUser }) => {
     setLoading({ ...loading, profile: true });
 
     try {
-      await userService.updateProfile({
-        name: profileForm.name,
-        phone: profileForm.phone,
-      });
+      // await userService.updateProfile({
+      //   name: profileForm.name,
+      //   phone: profileForm.phone,
+      // });
 
       toast.success("Profile updated successfully!");
       setIsEditingProfile(false);
@@ -124,12 +124,12 @@ const ProfileInfo = ({ user, refreshUser }) => {
     try {
       if (editingAddressId) {
         // Update existing address
-        await userService.updateAddress(editingAddressId, addressForm);
-        toast.success("Address updated successfully!");
+        // await userService.updateAddress(editingAddressId, addressForm);
+        // toast.success("Address updated successfully!");
       } else {
         // Add new address
-        await userService.addAddress(addressForm);
-        toast.success("Address added successfully!");
+        // await userService.addAddress(addressForm);
+        // toast.success("Address added successfully!");
       }
 
       setIsEditingAddress(false);
@@ -150,7 +150,7 @@ const ProfileInfo = ({ user, refreshUser }) => {
     setLoading({ ...loading, deleteAddress: addressId });
 
     try {
-      await userService.deleteAddress(addressId);
+      // await userService.deleteAddress(addressId);
       toast.success("Address deleted successfully!");
 
       // Refresh user data
@@ -166,8 +166,8 @@ const ProfileInfo = ({ user, refreshUser }) => {
   // Handle set default address
   const handleSetDefaultAddress = async (addressId) => {
     try {
-      await userService.setDefaultAddress(addressId);
-      toast.success("Default address updated!");
+      // await userService.setDefaultAddress(addressId);
+      // toast.success("Default address updated!");
 
       // Refresh user data
       if (refreshUser) refreshUser();

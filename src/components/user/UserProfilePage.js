@@ -24,7 +24,7 @@ import PaymentMethods from "./PaymentMethods";
 import NotificationsPage from "./NotificationsPage";
 import AccountSettings from "./AccountSettings";
 import OrderDetails from "./OrderDetails";
-import { userService, authService } from "../../services/api";
+// import { userService, authService } from "../../services/api";
 import { toast } from "react-hot-toast";
 
 const UserProfilePage = () => {
@@ -38,14 +38,14 @@ const UserProfilePage = () => {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const userData = await userService.getProfile();
-      setUser(userData);
+      // const userData = await userService.getProfile();
+      // setUser(userData);
     } catch (error) {
       console.error("Error fetching user data:", error);
 
       // If unauthorized, logout and redirect to login
       if (error.response && error.response.status === 401) {
-        authService.logout();
+        // authService.logout();
         navigate("/login", { state: { from: location.pathname } });
       } else {
         toast.error("Failed to load profile information");
@@ -57,10 +57,10 @@ const UserProfilePage = () => {
 
   useEffect(() => {
     // Check if user is authenticated
-    if (!authService.isAuthenticated()) {
-      navigate("/login", { state: { from: location.pathname } });
-      return;
-    }
+    // if (!authService.isAuthenticated()) {
+    //   navigate("/login", { state: { from: location.pathname } });
+    //   return;
+    // }
 
     // Determine active tab from URL
     const path = location.pathname;
@@ -84,7 +84,7 @@ const UserProfilePage = () => {
 
   const handleSignOut = () => {
     // Handle sign out logic
-    authService.logout();
+    // authService.logout();
     toast.success("You have been signed out successfully");
     navigate("/login");
   };

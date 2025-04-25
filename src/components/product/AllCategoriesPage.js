@@ -1,6 +1,7 @@
 // src/components/category/AllCategoriesPage.js
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import CasualModel from "../../assests/mancasual.jpeg";
 import FormalModel from "../../assests/formal.jpeg";
@@ -8,7 +9,7 @@ import Gym from "../../assests/gyn.jpeg";
 import Party from "../../assests/party.jpeg";
 
 const AllCategoriesPage = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,16 +167,16 @@ const AllCategoriesPage = () => {
   }, []);
 
   // Handle category click
-  const handleCategoryClick = (path) => {
-    navigate(path);
-  };
+  // const handleCategoryClick = (path) => {
+  //   navigate(path);
+  // };
 
   // Render category card
   const renderCategoryCard = (category) => (
     <div
       key={category.id}
       className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-md"
-      onClick={() => handleCategoryClick(category.path)}
+      // onClick={() => handleCategoryClick(category.path)}
     >
       <div className="aspect-w-16 aspect-h-9 relative">
         <img

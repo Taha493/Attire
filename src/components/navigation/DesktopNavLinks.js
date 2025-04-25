@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 
 const DesktopNavLinks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const navItems = [
     {
@@ -72,10 +72,10 @@ const DesktopNavLinks = () => {
     },
   ];
 
-  const handleNavigate = (path) => {
-    navigate(path);
-    setActiveDropdown(null);
-  };
+  // const handleNavigate = (path) => {
+  //   navigate(path);
+  //   setActiveDropdown(null);
+  // };
 
   return (
     <div className="hidden md:flex space-x-6 text-sm">
@@ -85,7 +85,7 @@ const DesktopNavLinks = () => {
             className="flex items-center cursor-pointer py-2"
             onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.id)}
             onMouseLeave={() => setActiveDropdown(null)}
-            onClick={() => !item.hasDropdown && handleNavigate(item.path)}
+            // onClick={() => !item.hasDropdown && handleNavigate(item.path)}
           >
             {item.label}
             {item.hasDropdown && (
@@ -104,7 +104,7 @@ const DesktopNavLinks = () => {
                 <div key={idx} className="flex-1 min-w-40">
                   <h3
                     className="font-medium mb-2 cursor-pointer hover:text-gray-600"
-                    onClick={() => handleNavigate(category.path)}
+                    // onClick={() => handleNavigate(category.path)}
                   >
                     {category.label}
                   </h3>
@@ -113,7 +113,7 @@ const DesktopNavLinks = () => {
                       <li
                         key={subIdx}
                         className="text-gray-600 hover:text-black cursor-pointer"
-                        onClick={() => handleNavigate(subItem.path)}
+                        // onClick={() => handleNavigate(subItem.path)}
                       >
                         {subItem.name}
                       </li>

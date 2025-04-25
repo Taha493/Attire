@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 
 const SearchBar = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Popular search suggestions
   const popularSearches = [
@@ -27,7 +27,7 @@ const SearchBar = () => {
       }
 
       // Navigate to search results page with query parameter
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      // navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
 
       // Reset search input
       setSearchQuery("");
@@ -36,7 +36,7 @@ const SearchBar = () => {
 
   const handlePopularSearch = (term) => {
     // Navigate to search results with the popular term
-    navigate(`/search?q=${encodeURIComponent(term)}`);
+    // navigate(`/search?q=${encodeURIComponent(term)}`);
 
     // Close mobile search if open
     if (mobileSearchOpen) {

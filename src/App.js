@@ -6,7 +6,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+// import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "react-hot-toast";
 
 // Authentication Components
@@ -32,7 +32,7 @@ import OrderConfirmationPage from "./components/checkout/OrderConfirmationPage";
 import UserProfilePage from "./components/user/UserProfilePage";
 
 // Auth service
-import { authService } from "./services/api";
+// import { authService } from "./services/api";
 
 function App() {
   const [showPromoBar, setShowPromoBar] = useState(true);
@@ -42,8 +42,8 @@ function App() {
   // Check authentication status on mount
   useEffect(() => {
     const checkAuth = () => {
-      const authenticated = authService.isAuthenticated();
-      setIsLoggedIn(authenticated);
+      // const authenticated = authService.isAuthenticated();
+      // setIsLoggedIn(authenticated);
     };
 
     // Check initially
@@ -62,7 +62,8 @@ function App() {
   }, []);
 
   return (
-    <GoogleOAuthProvider clientId="478863475650-p497sr5ej197eso3a634udolpe9i48nj.apps.googleusercontent.com">
+    // <GoogleOAuthProvider clientId="478863475650-p497sr5ej197eso3a634udolpe9i48nj.apps.googleusercontent.com">
+    <>
       {/* Toast notification container */}
       <Toaster position="top-center" />
 
@@ -159,7 +160,8 @@ function App() {
         </Routes>
         <Footer />
       </Router>
-    </GoogleOAuthProvider>
+    </>
+    // </GoogleOAuthProvider>
   );
 }
 

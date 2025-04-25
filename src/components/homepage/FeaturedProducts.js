@@ -1,6 +1,6 @@
 // src/components/homepage/FeaturedProducts.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import ProductCard from "../ProductCard/ProductCard";
 import { productService } from "../../services/api";
@@ -9,7 +9,7 @@ const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("featured");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -51,19 +51,19 @@ const FeaturedProducts = () => {
     }
   };
 
-  const handleViewAll = () => {
-    if (activeTab === "new-arrivals") {
-      navigate("/new-arrivals");
-    } else if (activeTab === "trending" || activeTab === "bestsellers") {
-      navigate(
-        `/top-selling?filter=${
-          activeTab === "trending" ? "trending" : "most-popular"
-        }`
-      );
-    } else {
-      navigate("/products");
-    }
-  };
+  // const handleViewAll = () => {
+  //   if (activeTab === "new-arrivals") {
+  //      navigate("/new-arrivals");
+  //   } else if (activeTab === "trending" || activeTab === "bestsellers") {
+  //     navigate(
+  //       `/top-selling?filter=${
+  //         activeTab === "trending" ? "trending" : "most-popular"
+  //       }`
+  //     );
+  //   } else {
+  //     navigate("/products");
+  //   }
+  // };
 
   // For mobile slider
   const scrollLeft = () => {
@@ -149,7 +149,7 @@ const FeaturedProducts = () => {
             </div>
 
             <button
-              onClick={handleViewAll}
+              // onClick={handleViewAll}
               className="text-sm hover:underline flex items-center"
             >
               View All

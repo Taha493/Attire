@@ -10,7 +10,7 @@ import {
   Heart,
   LogOut,
 } from "lucide-react";
-import { authService } from "../services/api";
+// import { authService } from "../services/api";
 import { toast } from "react-hot-toast";
 
 const MobileMenu = ({ isOpen, setMobileMenuOpen, isLoggedIn }) => {
@@ -100,7 +100,7 @@ const MobileMenu = ({ isOpen, setMobileMenuOpen, isLoggedIn }) => {
   };
 
   const handleSignOut = () => {
-    authService.logout();
+    // authService.logout();
     toast.success("You have been signed out successfully");
     closeMobileMenu();
     navigate("/login");

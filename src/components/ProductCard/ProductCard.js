@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import StarRating from "./StarRating";
 import PriceDisplay from "./PriceDisplay";
 import { toast } from "react-hot-toast";
-import { cartService, wishlistService, authService } from "../../services/api";
+// import { cartService, wishlistService, authService } from "../../services/api";
 
 const ProductCard = ({ product }) => {
   // Check if product exists and has required fields
@@ -40,11 +40,11 @@ const ProductCard = ({ product }) => {
     e.stopPropagation(); // Prevent navigating to product page
 
     // Check if user is logged in
-    if (!authService.isAuthenticated()) {
-      toast.error("Please sign in to add items to your cart");
-      navigate("/login", { state: { from: window.location.pathname } });
-      return;
-    }
+    // if (!authService.isAuthenticated()) {
+    //   toast.error("Please sign in to add items to your cart");
+    //   navigate("/login", { state: { from: window.location.pathname } });
+    //   return;
+    // }
 
     if (!inStock) {
       toast.error("This item is currently out of stock");
@@ -52,21 +52,21 @@ const ProductCard = ({ product }) => {
     }
 
     try {
-      setIsAddingToCart(true);
+      // setIsAddingToCart(true);
 
-      // Add item to cart with default size and color if available
-      await cartService.addToCart({
-        productId: _id,
-        quantity: 1,
-        size:
-          product.sizes && product.sizes.length > 0
-            ? product.sizes[0]
-            : "Medium",
-        color:
-          product.colors && product.colors.length > 0
-            ? product.colors[0].name
-            : "Default",
-      });
+      // // Add item to cart with default size and color if available
+      // await cartService.addToCart({
+      //   productId: _id,
+      //   quantity: 1,
+      //   size:
+      //     product.sizes && product.sizes.length > 0
+      //       ? product.sizes[0]
+      //       : "Medium",
+      //   color:
+      //     product.colors && product.colors.length > 0
+      //       ? product.colors[0].name
+      //       : "Default",
+      // });
 
       toast.success(`${name} added to your cart!`);
     } catch (error) {

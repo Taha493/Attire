@@ -5,7 +5,7 @@ import CategoryCard from "./CategoryCard";
 import { categoryService } from "../../services/api";
 
 function BrowseByDressStyle() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,14 +38,14 @@ function BrowseByDressStyle() {
     fetchCategories();
   }, []);
 
-  const handleViewAllCategories = () => {
-    navigate("/categories");
-  };
+  // const handleViewAllCategories = () => {
+  //   navigate("/categories");
+  // };
 
-  // Handle direct category navigation
-  const handleCategoryClick = (categoryName) => {
-    navigate(`/category/${categoryName}`);
-  };
+  // // Handle direct category navigation
+  // const handleCategoryClick = (categoryName) => {
+  //   navigate(`/category/${categoryName}`);
+  // };
 
   if (isLoading) {
     return (
@@ -78,7 +78,7 @@ function BrowseByDressStyle() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="font-plak text-3xl font-black">BROWSE BY DRESS STYLE</h1>
         <button
-          onClick={handleViewAllCategories}
+          // onClick={handleViewAllCategories}
           className="text-sm hover:underline hidden sm:block"
         >
           View All
@@ -89,7 +89,7 @@ function BrowseByDressStyle() {
         {categories.map((category) => (
           <div
             key={category._id}
-            onClick={() => handleCategoryClick(category.name)}
+            // onClick={() => handleCategoryClick(category.name)}
           >
             <CategoryCard
               title={category.name}
@@ -102,7 +102,7 @@ function BrowseByDressStyle() {
 
       <div className="mt-4 text-center sm:hidden">
         <button
-          onClick={handleViewAllCategories}
+          // onClick={handleViewAllCategories}
           className="border border-gray-300 text-sm py-2 px-4 rounded hover:bg-gray-50 transition-colors"
         >
           View All Categories

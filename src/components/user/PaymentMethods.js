@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, Plus, Trash2, Check } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { userService } from "../../services/api";
+// import { userService } from "../../services/api";
 
 const PaymentMethods = () => {
   const [isAddingCard, setIsAddingCard] = useState(false);
@@ -21,8 +21,8 @@ const PaymentMethods = () => {
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
-        const methods = await userService.getPaymentMethods();
-        setPaymentMethods(methods);
+        // const methods = await userService.getPaymentMethods();
+        // setPaymentMethods(methods);
       } catch (error) {
         console.error("Error fetching payment methods:", error);
         toast.error("Failed to load payment methods");
@@ -138,8 +138,8 @@ const PaymentMethods = () => {
       };
 
       // Add payment method
-      const updatedMethods = await userService.addPaymentMethod(paymentData);
-      setPaymentMethods(updatedMethods);
+      // const updatedMethods = await userService.addPaymentMethod(paymentData);
+      // setPaymentMethods(updatedMethods);
 
       // Success message and reset form
       toast.success("Payment method added successfully");
@@ -161,10 +161,10 @@ const PaymentMethods = () => {
   // Set a payment method as default
   const setDefaultPaymentMethod = async (paymentId) => {
     try {
-      const updatedMethods = await userService.setDefaultPaymentMethod(
-        paymentId
-      );
-      setPaymentMethods(updatedMethods);
+      // const updatedMethods = await userService.setDefaultPaymentMethod(
+      //   paymentId
+      // );
+      // setPaymentMethods(updatedMethods);
       toast.success("Default payment method updated");
     } catch (error) {
       console.error("Error setting default payment method:", error);
@@ -175,8 +175,8 @@ const PaymentMethods = () => {
   // Delete a payment method
   const deletePaymentMethod = async (paymentId) => {
     try {
-      const updatedMethods = await userService.deletePaymentMethod(paymentId);
-      setPaymentMethods(updatedMethods);
+      // const updatedMethods = await userService.deletePaymentMethod(paymentId);
+      // setPaymentMethods(updatedMethods);
       toast.success("Payment method removed");
       setShowDeleteConfirm(null);
     } catch (error) {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard/ProductCard";
-import { productService } from "../../services/api";
+// import { productService } from "../../services/api";
 import { toast } from "react-hot-toast";
 
 const TopSelling = () => {
@@ -16,8 +16,8 @@ const TopSelling = () => {
     const fetchTopSelling = async () => {
       try {
         // Use the productService
-        const topSellingData = await productService.getTopSelling({ limit: 4 });
-        setProducts(topSellingData);
+        // const topSellingData = await productService.getTopSelling({ limit: 4 });
+        // setProducts(topSellingData);
       } catch (error) {
         console.error("Error fetching top selling products:", error);
         // Set empty array as fallback

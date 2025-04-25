@@ -1,13 +1,13 @@
 // src/components/homepage/CategoryGrid.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { categoryService } from "../../services/api";
 
 const CategoryGrid = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -60,7 +60,7 @@ const CategoryGrid = () => {
   }, []);
 
   const handleCategoryClick = (categoryName) => {
-    navigate(`/category/${categoryName}`);
+    // navigate(`/category/${categoryName}`);
   };
 
   if (loading) {
@@ -132,7 +132,7 @@ const CategoryGrid = () => {
 
         <div className="mt-8 text-center">
           <button
-            onClick={() => navigate("/categories")}
+            // onClick={() => navigate("/categories")}
             className="border border-gray-300 bg-white text-black py-2 px-6 rounded-full hover:bg-gray-50 transition-colors"
           >
             View All Categories

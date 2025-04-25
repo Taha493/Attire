@@ -1,0 +1,45 @@
+[
+    {
+      "name": "Casual",
+      "description": "Comfortable everyday wear",
+      "imageSrc": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "type": "dress-style",
+      "productCount": 0
+    },
+    {
+      "name": "Formal",
+      "description": "Elegant attire for professional settings",
+      "imageSrc": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "type": "dress-style",
+      "productCount": 0
+    },
+    {
+      "name": "Party",
+      "description": "Stylish outfits for special occasions",
+      "imageSrc": "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "type": "dress-style",
+      "productCount": 0
+    },
+    {
+      "name": "Gym",
+      "description": "Performance wear for workouts",
+      "imageSrc": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "type": "dress-style",
+      "productCount": 0
+    },
+    {
+      "name": "Men",
+      "description": "Clothing for men",
+      "imageSrc": "https://images.unsplash.com/photo-1516826957135-700dedea698c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "type": "gender",
+      "productCount": 0
+    },
+    {
+      "name": "Women",
+      "description": "Clothing for women",
+      "imageSrc": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      "type": "gender",
+      "productCount": 0
+    }
+  ]
+  

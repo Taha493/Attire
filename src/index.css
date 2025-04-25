@@ -1,0 +1,26 @@
+/* Import Inter font first */
+@import "@fontsource/inter/index.css";
+
+/* Tailwind base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply the Inter font globally */
+body {
+  @apply font-antebas;
+}
+
+@font-face {
+  font-family: 'Neue Plak Wide';
+  src: url('/public/fonts/Neue.ttf') format('woff2');
+  font-weight: 900; /* or the specific weight for ExtraBlack */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Antebas';
+  src: url('/public/fonts/Antebas.ttf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}

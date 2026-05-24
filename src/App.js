@@ -6,20 +6,15 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-// import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "react-hot-toast";
 
-// Authentication Components
 import AuthForm from "./components/auth/AuthForm";
 import PrivateRoute from "./components/auth/PrivateRoute";
-
-// Layout Components
 import Footer from "./Footer";
 import PromoBar from "./PromoBar";
 import Header from "./Header";
 import MobileMenu from "./components/MobileMenu";
-
-// Main Page Components
 import Dashboard from "./components/Dashboard";
 import CategoryPage from "./components/category/CategoryPage";
 import CartPage from "./components/cart/CartPage";
@@ -30,43 +25,36 @@ import TopSelling from "./components/ProductShowcase/TopSelling";
 import AllCategoriesPage from "./components/product/AllCategoriesPage";
 import OrderConfirmationPage from "./components/checkout/OrderConfirmationPage";
 import UserProfilePage from "./components/user/UserProfilePage";
-
-// Auth service
-// import { authService } from "./services/api";
+import ContactUs from "./components/contact/ContactUs";
+import { authService } from "./services/api";
 
 function App() {
   const [showPromoBar, setShowPromoBar] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check authentication status on mount
   useEffect(() => {
     const checkAuth = () => {
-      // const authenticated = authService.isAuthenticated();
-      // setIsLoggedIn(authenticated);
+      const authenticated = authService.isAuthenticated();
+      setIsLoggedIn(authenticated);
     };
 
     // Check initially
     checkAuth();
 
-    // Set up event listener for storage changes (for multi-tab support)
-    const handleStorageChange = () => {
-      checkAuth();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
+    // storage fires in OTHER tabs; authChange fires in the SAME tab
+    window.addEventListener("storage", checkAuth);
+    window.addEventListener("authChange", checkAuth);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("storage", checkAuth);
+      window.removeEventListener("authChange", checkAuth);
     };
   }, []);
 
   return (
-    // <GoogleOAuthProvider clientId="478863475650-p497sr5ej197eso3a634udolpe9i48nj.apps.googleusercontent.com">
-    <>
-      {/* Toast notification container */}
+    <GoogleOAuthProvider clientId="478863475650-p497sr5ej197eso3a634udolpe9i48nj.apps.googleusercontent.com">
       <Toaster position="top-center" />
-
       <Router>
         <PromoBar
           showPromoBar={showPromoBar}
@@ -74,8 +62,6 @@ function App() {
           isLoggedIn={isLoggedIn}
         />
         <Header setMobileMenuOpen={setMobileMenuOpen} isLoggedIn={isLoggedIn} />
-
-        {/* Mobile Menu (inside Router to use navigation features) */}
         <MobileMenu
           isOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
@@ -83,31 +69,24 @@ function App() {
         />
 
         <Routes>
-          {/* Authentication Routes */}
           <Route path="/login" element={<AuthForm />} />
           <Route path="/register" element={<AuthForm isRegister={true} />} />
-
-          {/* Home and Dashboard Routes */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/contact" element={<ContactUs />} />
           <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* Category Routes - Enhanced with dynamic parameters */}
-          <Route path="/category/:categoryName" element={<CategoryPage />} />
+          <Route
+            path="/category/:categoryName/:subcategoryName?"
+            element={<CategoryPage />}
+          />
           <Route path="/categories" element={<AllCategoriesPage />} />
-
-          {/* Product Routes - Enhanced with nested routes and dynamic parameters */}
           <Route path="/product/:productId" element={<ProductCatelog />} />
           <Route
             path="/category/:categoryName/product/:productId"
             element={<ProductCatelog />}
           />
-
-          {/* Collection Pages */}
-          <Route path="/new-arrivals" element={<NewArrivals />} />
-          <Route path="/top-selling" element={<TopSelling />} />
+          <Route path="/products/new-arrivals" element={<NewArrivals />} />
+          <Route path="/products/top-selling" element={<TopSelling />} />
           <Route path="/related/:productId" element={<CategoryPage />} />
-
-          {/* Cart and Checkout Routes */}
           <Route path="/cart" element={<CartPage />} />
           <Route
             path="/checkout"
@@ -125,8 +104,6 @@ function App() {
               </PrivateRoute>
             }
           />
-
-          {/* User Profile Routes (protected) */}
           <Route
             path="/profile/*"
             element={
@@ -135,8 +112,6 @@ function App() {
               </PrivateRoute>
             }
           />
-
-          {/* 404 Route - must be the last route */}
           <Route
             path="*"
             element={
@@ -160,8 +135,7 @@ function App() {
         </Routes>
         <Footer />
       </Router>
-    </>
-    // </GoogleOAuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 

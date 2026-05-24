@@ -1,201 +1,104 @@
-// src/components/category/AllCategoriesPage.js
 import React, { useState, useEffect } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
-import CasualModel from "../../assests/mancasual.jpeg";
-import FormalModel from "../../assests/formal.jpeg";
-import Gym from "../../assests/gyn.jpeg";
-import Party from "../../assests/party.jpeg";
+import { categoryService } from "../../services/api";
 
 const AllCategoriesPage = () => {
-  // const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState({
+    dressStyles: [],
+    genderCategories: [],
+  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // In a real application, fetch categories from an API
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+
+    let isMounted = true;
+
     const fetchAllCategories = async () => {
       setLoading(true);
+      setError(null);
 
       try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        let response;
 
-        // This would be a real API call in production
-        // const response = await fetch('/api/categories');
-        // const data = await response.json();
+        try {
+          response = await categoryService.getCategories();
+        } catch (apiError) {
+          console.warn("API call failed, using mock data:", apiError);
+        }
 
-        // Mock data for demonstration - Dress Styles
-        const dressStylesData = [
-          {
-            id: "casual",
-            title: "Casual",
-            image: CasualModel,
-            path: "/category/Casual",
-            productCount: 47,
-            type: "dress-style",
-          },
-          {
-            id: "formal",
-            title: "Formal",
-            image: FormalModel,
-            path: "/category/Formal",
-            productCount: 34,
-            type: "dress-style",
-          },
-          {
-            id: "party",
-            title: "Party",
-            image: Party,
-            path: "/category/Party",
-            productCount: 26,
-            type: "dress-style",
-          },
-          {
-            id: "gym",
-            title: "Gym",
-            image: Gym,
-            path: "/category/Gym",
-            productCount: 18,
-            type: "dress-style",
-          },
-        ];
+        if (isMounted) {
+          if (Array.isArray(response)) {
+            const dressStyles = [];
+            const genderCategories = [];
 
-        // Mock data for demonstration - Gender Categories
-        const genderCategoriesData = [
-          {
-            id: "men",
-            title: "Men",
-            image: "/api/placeholder/320/240",
-            path: "/category/Men",
-            productCount: 120,
-            type: "gender",
-          },
-          {
-            id: "women",
-            title: "Women",
-            image: "/api/placeholder/320/240",
-            path: "/category/Women",
-            productCount: 145,
-            type: "gender",
-          },
-          {
-            id: "kids",
-            title: "Kids",
-            image: "/api/placeholder/320/240",
-            path: "/category/Kids",
-            productCount: 78,
-            type: "gender",
-          },
-          {
-            id: "unisex",
-            title: "Unisex",
-            image: "/api/placeholder/320/240",
-            path: "/category/Unisex",
-            productCount: 36,
-            type: "gender",
-          },
-        ];
+            response.forEach((item) => {
+              if (item?.type === "dress-style") {
+                dressStyles.push(item);
+              } else if (item?.type === "gender") {
+                genderCategories.push(item);
+              }
+            });
 
-        // Mock data for demonstration - Product Type Categories
-        const productTypeData = [
-          {
-            id: "t-shirts",
-            title: "T-Shirts",
-            image: "/api/placeholder/320/240",
-            path: "/category/T-shirts",
-            productCount: 85,
-            type: "product-type",
-          },
-          {
-            id: "shirts",
-            title: "Shirts",
-            image: "/api/placeholder/320/240",
-            path: "/category/Shirts",
-            productCount: 64,
-            type: "product-type",
-          },
-          {
-            id: "jeans",
-            title: "Jeans",
-            image: "/api/placeholder/320/240",
-            path: "/category/Jeans",
-            productCount: 43,
-            type: "product-type",
-          },
-          {
-            id: "jackets",
-            title: "Jackets",
-            image: "/api/placeholder/320/240",
-            path: "/category/Jackets",
-            productCount: 32,
-            type: "product-type",
-          },
-          {
-            id: "accessories",
-            title: "Accessories",
-            image: "/api/placeholder/320/240",
-            path: "/category/Accessories",
-            productCount: 54,
-            type: "product-type",
-          },
-          {
-            id: "shoes",
-            title: "Shoes",
-            image: "/api/placeholder/320/240",
-            path: "/category/Shoes",
-            productCount: 38,
-            type: "product-type",
-          },
-        ];
-
-        // Combine all category types
-        setCategories({
-          dressStyles: dressStylesData,
-          genderCategories: genderCategoriesData,
-          productTypes: productTypeData,
-        });
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+            setCategories({ dressStyles, genderCategories });
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Final error:", err);
+          setError("Failed to load categories. Please try again later.");
+          setCategories({ dressStyles: [], genderCategories: [] });
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchAllCategories();
-  }, []);
 
-  // Handle category click
-  // const handleCategoryClick = (path) => {
-  //   navigate(path);
-  // };
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Only run once on mount
 
-  // Render category card
+  const handleCategoryClick = (path) => {
+    if (path) navigate(path);
+  };
+
   const renderCategoryCard = (category) => (
     <div
       key={category.id}
       className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-md"
-      // onClick={() => handleCategoryClick(category.path)}
+      onClick={() => handleCategoryClick("/category/" + category.name)}
     >
       <div className="aspect-w-16 aspect-h-9 relative">
         <img
-          src={category.image}
-          alt={category.title}
+          src={category.imageSrc || "/api/placeholder/400/320"}
+          alt={category.title || "Category"}
           className="object-cover w-full h-48"
+          onError={(e) => {
+            e.target.src = "/api/placeholder/400/320";
+            e.target.alt = "Image not available";
+          }}
         />
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-          <h3 className="text-white text-xl font-bold">{category.title}</h3>
+          <h3 className="text-white text-xl font-bold">{category.name}</h3>
         </div>
       </div>
       <div className="p-4">
         <div className="flex justify-between items-center">
           <span className="text-gray-500 text-sm">
-            {category.productCount} products
+            {category.productCount || 0} products
           </span>
-          <button className="text-sm font-medium flex items-center">
-            Shop Now
-            <ChevronRight size={16} className="ml-1" />
+          <button
+            className="text-sm font-medium flex items-center"
+            aria-label={`Shop ${category.name}`}
+          >
+            Shop Now <ChevronRight size={16} className="ml-1" />
           </button>
         </div>
       </div>
@@ -205,7 +108,7 @@ const AllCategoriesPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-        {/* Breadcrumb Navigation */}
+        {/* Breadcrumb */}
         <div className="flex items-center text-sm mb-6">
           <Link to="/" className="text-gray-500 hover:text-black">
             Home
@@ -214,47 +117,40 @@ const AllCategoriesPage = () => {
           <span className="font-medium">All Categories</span>
         </div>
 
-        {/* Page Title */}
-        <h1 className="font-plak text-3xl font-bold mb-8">Shop By Category</h1>
+        <h1 className="text-4xl font-bold mb-8">Shop By Category</h1>
 
-        {/* Content */}
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
           </div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-12">{error}</div>
         ) : (
           <div className="space-y-12">
-            {/* Dress Styles Section */}
             <section>
               <h2 className="text-2xl font-bold mb-6">Dress Styles</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {categories.dressStyles &&
-                  categories.dressStyles.map((category) =>
-                    renderCategoryCard(category)
-                  )}
-              </div>
+              {categories.dressStyles.length === 0 ? (
+                <div className="text-center text-gray-500 py-12">
+                  No dress style categories found.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {categories.dressStyles.map(renderCategoryCard)}
+                </div>
+              )}
             </section>
 
-            {/* Gender Categories Section */}
             <section>
               <h2 className="text-2xl font-bold mb-6">Shop By Gender</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {categories.genderCategories &&
-                  categories.genderCategories.map((category) =>
-                    renderCategoryCard(category)
-                  )}
-              </div>
-            </section>
-
-            {/* Product Types Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-6">Product Types</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {categories.productTypes &&
-                  categories.productTypes.map((category) =>
-                    renderCategoryCard(category)
-                  )}
-              </div>
+              {categories.genderCategories.length === 0 ? (
+                <div className="text-center text-gray-500 py-12">
+                  No gender categories found.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {categories.genderCategories.map(renderCategoryCard)}
+                </div>
+              )}
             </section>
           </div>
         )}

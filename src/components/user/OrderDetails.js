@@ -1,4 +1,3 @@
-// src/components/user/OrderDetails.js
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
@@ -10,87 +9,83 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import { orderService } from "../../services/api";
 
 const OrderDetails = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch order details
     const fetchOrderDetails = async () => {
       setLoading(true);
-
       try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 600));
-
-        // This would be a real API call in production
-        // const response = await fetch(`/api/orders/${orderId}`);
-        // const data = await response.json();
-
-        // Mock order data
-        const mockOrder = {
-          id: orderId,
-          date: "2025-03-15T10:30:00Z",
-          total: 279.99,
-          status: "delivered",
-          paymentStatus: "paid",
-          estimatedDelivery: "2025-03-20T00:00:00Z",
-          deliveredDate: "2025-03-19T14:35:00Z",
-          shippingMethod: "Standard Shipping",
-          shippingCost: 15,
-          discount: 40,
-          tax: 25.99,
-          subtotal: 279,
-          items: [
-            {
-              id: "t-shirt-tape-details",
-              name: "T-shirt with Tape Details",
-              imageSrc: "/api/placeholder/120/120",
-              price: 120,
-              quantity: 1,
-              size: "Large",
-              color: "Black",
-            },
-            {
-              id: "checkered-shirt",
-              name: "Checkered Shirt",
-              imageSrc: "/api/placeholder/120/120",
-              price: 180,
-              quantity: 1,
-              size: "Medium",
-              color: "Blue",
-            },
-          ],
-          trackingNumber: "TRK12345678",
-          trackingURL: "#",
+        const response = await orderService.getOrder(orderId);
+        // Map backend response to frontend format
+        const formattedOrder = {
+          id: response._id,
+          date: response.date,
+          total: response.total,
+          status: response.status,
+          paymentStatus: response.paymentStatus || "paid",
+          estimatedDelivery:
+            response.estimatedDelivery ||
+            new Date(
+              new Date(response.createdAt).getTime() + 5 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          deliveredDate:
+            response.deliveredDate ||
+            (response.status === "delivered"
+              ? new Date(
+                  new Date(response.createdAt).getTime() +
+                    4 * 24 * 60 * 60 * 1000
+                ).toISOString()
+              : null),
+          shippingMethod: response.shippingMethod || "Standard Shipping",
+          shippingCost: response.shippingCost || 15,
+          discount: response.discount || 0,
+          tax: response.tax || 0,
+          subtotal: response.subtotal,
+          items: response.items.map((item) => ({
+            id: item.product || item._id,
+            name: item.name,
+            imageSrc: item.imageSrc || "/api/placeholder/120/120",
+            price: item.price,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+          })),
+          trackingNumber: response.trackingNumber || null,
+          trackingURL: response.trackingURL || "#",
           shippingAddress: {
-            name: "John Doe",
-            streetAddress: "123 Main Street",
-            city: "New York",
-            state: "NY",
-            postalCode: "10001",
-            country: "United States",
+            name: response.shippingAddress.name,
+            streetAddress: response.shippingAddress.streetAddress,
+            city: response.shippingAddress.city,
+            state: response.shippingAddress.state,
+            postalCode: response.shippingAddress.postalCode,
+            country: response.shippingAddress.country,
           },
           billingAddress: {
-            name: "John Doe",
-            streetAddress: "123 Main Street",
-            city: "New York",
-            state: "NY",
-            postalCode: "10001",
-            country: "United States",
+            name: response.billingAddress.name,
+            streetAddress: response.billingAddress.streetAddress,
+            city: response.billingAddress.city,
+            state: response.billingAddress.state,
+            postalCode: response.billingAddress.postalCode,
+            country: response.billingAddress.country,
           },
-          paymentMethod: "Credit Card (Visa ****4242)",
+          paymentMethod: response.paymentMethod || "Credit Card",
         };
-
-        setOrder(mockOrder);
-      } catch (error) {
+        setOrder(formattedOrder);
+        setError(null);
+      } catch (err) {
         console.error(
           `Error fetching order details for order ${orderId}:`,
-          error
+          err
         );
+        setError(err.message || "Failed to load order details");
+        setOrder(null);
       } finally {
         setLoading(false);
       }
@@ -146,12 +141,13 @@ const OrderDetails = () => {
     );
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <div className="text-center py-12">
         <h2 className="text-xl font-bold mb-2">Order Not Found</h2>
         <p className="text-gray-500 mb-4">
-          The order you're looking for doesn't exist or might have been removed.
+          {error ||
+            "The order you're looking for doesn't exist or might have been removed."}
         </p>
         <button
           onClick={goBackToOrders}
@@ -357,7 +353,8 @@ const OrderDetails = () => {
             <h3 className="font-medium text-sm mb-2">Payment Method</h3>
             <p className="text-sm text-gray-600">{order.paymentMethod}</p>
             <p className="text-sm text-gray-600 mt-1">
-              Payment Status: <span className="text-green-600">Paid</span>
+              Payment Status:{" "}
+              <span className="text-green-600">{order.paymentStatus}</span>
             </p>
           </div>
         </div>

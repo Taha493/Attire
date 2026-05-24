@@ -1,91 +1,64 @@
-// src/components/product/RelatedProducts.js
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { productService } from "../../services/api";
+import ProductCard from "../ProductCard/ProductCard";
 
-const RelatedProducts = () => {
+const RelatedProducts = ({ categoryName, productId }) => {
   const navigate = useNavigate();
-  const { productId, categoryName } = useParams();
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // In a real application, this would fetch data based on current product
     const fetchRelatedProducts = async () => {
       setIsLoading(true);
+      setError(null);
 
       try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        // Fetch 4 products from the specified category using productService
+        const response = await productService.getProducts({
+          category: categoryName,
+          limit: 4,
+        });
 
-        // This would be an API call with the current product ID to get related products
-        // For example: `/api/products/${productId}/related` or filtered by category/tags
+        // Ensure the response is an array
+        let productsArray = Array.isArray(response.products)
+          ? response.products
+          : [];
 
-        // Mock data for demonstration
-        const mockRelatedProducts = [
-          {
-            id: "polo-contrast",
-            name: "Polo with Contrast Trims",
-            imageSrc: "/api/placeholder/240/320",
-            rating: 4.0,
-            reviewCount: 140,
-            currentPrice: 212,
-            originalPrice: 242,
-            discountPercentage: 12,
-            category: categoryName || "Formal", // Use current category or default
-          },
-          {
-            id: "gradient-tshirt",
-            name: "Gradient Graphic T-shirt",
-            imageSrc: "/api/placeholder/240/320",
-            rating: 3.5,
-            reviewCount: 125,
-            currentPrice: 145,
-            originalPrice: null,
-            discountPercentage: null,
-            category: categoryName || "Casual",
-          },
-          {
-            id: "polo-tipping",
-            name: "Polo with Tipping Details",
-            imageSrc: "/api/placeholder/240/320",
-            rating: 4.5,
-            reviewCount: 180,
-            currentPrice: 180,
-            originalPrice: null,
-            discountPercentage: null,
-            category: categoryName || "Casual",
-          },
-          {
-            id: "striped-tshirt",
-            name: "Black Striped T-shirt",
-            imageSrc: "/api/placeholder/240/320",
-            rating: 4.0,
-            reviewCount: 145,
-            currentPrice: 120,
-            originalPrice: 150,
-            discountPercentage: 20,
-            category: categoryName || "Casual",
-          },
-        ];
-
-        // Filter out the current product if it's in the related products list
-        const filteredProducts = mockRelatedProducts.filter(
-          (product) => product.id !== productId
+        productsArray = productsArray.filter(
+          (product) => product._id !== productId // Exclude the current product from the list
         );
+        // Map backend response to match frontend expected format
+        const formattedProducts = productsArray.map((product) => ({
+          _id: product._id,
+          name: product.name,
+          imageSrc: product.imageSrc || "/api/placeholder/240/320", // Fallback image
+          rating: product.rating || 4.0,
+          reviewCount: product.reviewCount || 100,
+          price: product.price,
+          originalPrice: product.originalPrice || null,
+          discountPercentage: product.discountPercentage || null,
+          category: product.category || categoryName,
+        }));
 
-        setRelatedProducts(filteredProducts.slice(0, 4)); // Limit to 4 products
+        setRelatedProducts(formattedProducts);
       } catch (error) {
         console.error("Error fetching related products:", error);
-        // Handle error state
+        setError("Failed to load related products");
+        setRelatedProducts([]);
+        toast.error("Failed to load related products");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchRelatedProducts();
-  }, [productId, categoryName]); // Re-fetch when product or category changes
+    if (categoryName) {
+      fetchRelatedProducts();
+    }
+  }, [categoryName, productId]); // Re-fetch when categoryName changes
 
   // Function to handle quick add
   const handleQuickAdd = (e, product) => {
@@ -106,13 +79,7 @@ const RelatedProducts = () => {
 
   // Function to view more related products
   const handleViewMoreRelated = () => {
-    if (categoryName) {
-      navigate(`/category/${categoryName}`, {
-        state: { fromProduct: productId },
-      });
-    } else {
-      navigate(`/related/${productId}`);
-    }
+    navigate(`/category/${categoryName}`);
   };
 
   // Function to render star rating
@@ -149,8 +116,19 @@ const RelatedProducts = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="py-8">
+        <h2 className="font-plak text-2xl sm:text-3xl font-bold text-center mb-8">
+          YOU MIGHT ALSO LIKE
+        </h2>
+        <div className="text-center text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   if (relatedProducts.length === 0) {
-    return null; // Don't show the section if no related products
+    return null;
   }
 
   return (
@@ -168,66 +146,70 @@ const RelatedProducts = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        {relatedProducts.map((product) => (
-          <div
-            key={product.id}
-            className="group cursor-pointer relative"
-            onClick={() => handleProductClick(product)}
-            onMouseEnter={() => setHoveredProductId(product.id)}
-            onMouseLeave={() => setHoveredProductId(null)}
-          >
-            {/* Product Image with Quick Add overlay */}
-            <div className="bg-gray-100 rounded-lg p-2 mb-2 overflow-hidden relative">
-              <img
-                src={product.imageSrc}
-                alt={product.name}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+        {relatedProducts.map(
+          (product) => (
+            console.log(relatedProducts),
+            (<ProductCard product={product} key={product._id} />)
+            // <div
+            //   key={product.id}
+            //   className="group cursor-pointer relative"
+            //   onClick={() => handleProductClick(product)}
+            //   onMouseEnter={() => setHoveredProductId(product.id)}
+            //   onMouseLeave={() => setHoveredProductId(null)}
+            // >
+            //   {/* Product Image with Quick Add overlay */}
+            //   <div className="bg-gray-100 rounded-lg p-2 mb-2 overflow-hidden relative">
+            //     <img
+            //       src={product.imageSrc}
+            //       alt={product.name}
+            //       className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+            //     />
 
-              {/* Category Tag */}
-              {product.category && (
-                <div className="absolute top-2 left-2 bg-white bg-opacity-90 text-xs px-2 py-0.5 rounded">
-                  {product.category}
-                </div>
-              )}
+            //     {/* Category Tag */}
+            //     {product.category && (
+            //       <div className="absolute top-2 left-2 bg-white bg-opacity-90 text-xs px-2 py-0.5 rounded">
+            //         {product.category}
+            //       </div>
+            //     )}
 
-              {/* Quick Add Button (appears on hover) */}
-              <div
-                className={`absolute bottom-0 left-0 right-0 bg-black bg-opacity-80 text-white text-xs sm:text-sm py-2 text-center transition-transform duration-300 ${
-                  hoveredProductId === product.id
-                    ? "translate-y-0"
-                    : "translate-y-full"
-                }`}
-                onClick={(e) => handleQuickAdd(e, product)}
-              >
-                Quick Add
-              </div>
-            </div>
+            //     {/* Quick Add Button (appears on hover) */}
+            //     <div
+            //       className={`absolute bottom-0 left-0 right-0 bg-black bg-opacity-80 text-white text-xs sm:text-sm py-2 text-center transition-transform duration-300 ${
+            //         hoveredProductId === product.id
+            //           ? "translate-y-0"
+            //           : "translate-y-full"
+            //       }`}
+            //       onClick={(e) => handleQuickAdd(e, product)}
+            //     >
+            //       Quick Add
+            //     </div>
+            //   </div>
 
-            {/* Product Info */}
-            <h3 className="font-medium text-xs sm:text-sm line-clamp-2">
-              {product.name}
-            </h3>
+            //   {/* Product Info */}
+            //   <h3 className="font-medium text-xs sm:text-sm line-clamp-2">
+            //     {product.name}
+            //   </h3>
 
-            <div className="mt-1">{renderStars(product.rating)}</div>
+            //   <div className="mt-1">{renderStars(product.rating)}</div>
 
-            <div className="mt-1 flex items-center text-xs sm:text-sm">
-              <span className="font-bold">${product.currentPrice}</span>
+            //   <div className="mt-1 flex items-center text-xs sm:text-sm">
+            //     <span className="font-bold">${product.currentPrice}</span>
 
-              {product.originalPrice && (
-                <span className="ml-2 text-gray-400 line-through">
-                  ${product.originalPrice}
-                </span>
-              )}
+            //     {product.originalPrice && (
+            //       <span className="ml-2 text-gray-400 line-through">
+            //         ${product.originalPrice}
+            //       </span>
+            //     )}
 
-              {product.discountPercentage && (
-                <span className="ml-2 bg-red-100 text-red-500 text-xs px-1 py-0.5 rounded">
-                  -{product.discountPercentage}%
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
+            //     {product.discountPercentage && (
+            //       <span className="ml-2 bg-red-100 text-red-500 text-xs px-1 py-0.5 rounded">
+            //         -{product.discountPercentage}%
+            //       </span>
+            //     )}
+            //   </div>
+            // </div>
+          )
+        )}
       </div>
 
       {/* Mobile View More button */}

@@ -1,10 +1,10 @@
-// src/components/ProductCard/ProductCard.js - Updated for API Integration
+// src/components/ProductCard/ProductCard.js - Updated with fixed dimensions
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StarRating from "./StarRating";
 import PriceDisplay from "./PriceDisplay";
 import { toast } from "react-hot-toast";
-// import { cartService, wishlistService, authService } from "../../services/api";
+import { cartService, wishlistService, authService } from "../../services/api";
 
 const ProductCard = ({ product }) => {
   // Check if product exists and has required fields
@@ -40,11 +40,11 @@ const ProductCard = ({ product }) => {
     e.stopPropagation(); // Prevent navigating to product page
 
     // Check if user is logged in
-    // if (!authService.isAuthenticated()) {
-    //   toast.error("Please sign in to add items to your cart");
-    //   navigate("/login", { state: { from: window.location.pathname } });
-    //   return;
-    // }
+    if (!authService.isAuthenticated()) {
+      toast.error("Please sign in to add items to your cart");
+      navigate("/login", { state: { from: window.location.pathname } });
+      return;
+    }
 
     if (!inStock) {
       toast.error("This item is currently out of stock");
@@ -52,21 +52,21 @@ const ProductCard = ({ product }) => {
     }
 
     try {
-      // setIsAddingToCart(true);
+      setIsAddingToCart(true);
 
-      // // Add item to cart with default size and color if available
-      // await cartService.addToCart({
-      //   productId: _id,
-      //   quantity: 1,
-      //   size:
-      //     product.sizes && product.sizes.length > 0
-      //       ? product.sizes[0]
-      //       : "Medium",
-      //   color:
-      //     product.colors && product.colors.length > 0
-      //       ? product.colors[0].name
-      //       : "Default",
-      // });
+      // Add item to cart with default size and color if available
+      await cartService.addToCart({
+        productId: _id,
+        quantity: 1,
+        size:
+          product.sizes && product.sizes.length > 0
+            ? product.sizes[0]
+            : "Medium",
+        color:
+          product.colors && product.colors.length > 0
+            ? product.colors[0].name
+            : "Default",
+      });
 
       toast.success(`${name} added to your cart!`);
     } catch (error) {
@@ -90,17 +90,18 @@ const ProductCard = ({ product }) => {
 
   return (
     <div
-      className="flex flex-col group cursor-pointer transition-all duration-300 hover:shadow-md rounded-lg"
+      className="flex flex-col group cursor-pointer transition-all duration-300 hover:shadow-md rounded-lg h-112 w-full"
       onClick={handleProductClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="bg-[#f0eeed]-100 rounded-lg p-2 sm:p-3 md:p-4 mb-2 overflow-hidden relative">
-        <div className="relative overflow-hidden">
+      {/* Fixed height image container */}
+      <div className="bg-[#f0eeed]-100 rounded-lg p-2 sm:p-3 md:p-4 mb-2 h-80 relative">
+        <div className="relative overflow-hidden h-full w-full">
           <img
             src={displayImage}
             alt={name}
-            className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
 
           {/* Quick add button that appears on hover */}
@@ -160,20 +161,23 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-      <h3 className="font-antebas font-medium text-xs ml-4 sm:text-sm line-clamp-2">
-        {name}
-      </h3>
+      {/* Product details with fixed heights */}
+      <div className="flex flex-col h-36 px-4">
+        <h3 className="font-antebas font-medium text-xs sm:text-sm line-clamp-2 h-10">
+          {name}
+        </h3>
 
-      <div className="ml-4 mt-1">
-        <StarRating rating={rating} reviewCount={rating} />
-      </div>
+        <div className="mt-1 h-5">
+          <StarRating rating={rating} reviewCount={rating} />
+        </div>
 
-      <div className="ml-4 mt-1">
-        <PriceDisplay
-          currentPrice={price}
-          originalPrice={originalPrice}
-          discountPercentage={discountPercentage}
-        />
+        <div className="mt-1 h-6">
+          <PriceDisplay
+            currentPrice={price}
+            originalPrice={originalPrice}
+            discountPercentage={discountPercentage}
+          />
+        </div>
       </div>
     </div>
   );

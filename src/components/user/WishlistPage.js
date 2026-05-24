@@ -1,73 +1,39 @@
-// src/components/user/WishlistPage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeartOff, ShoppingCart, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { wishlistService, cartService } from "../../services/api";
 
 const WishlistPage = () => {
   const navigate = useNavigate();
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch wishlist items
     const fetchWishlist = async () => {
       setLoading(true);
-
       try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        const response = await wishlistService.getWishlist();
+        const formattedItems = response.items.map((product) => ({
+          _id: product.id, // Ensure this matches your backend's product ID field
+          name: product.name,
+          imageSrc: product.imageSrc || "/api/placeholder/240/320",
+          price: product.price,
+          original: product.originalPrice || null,
+          discountPercentage: product.discountPercentage || null,
+          rating: product.rating || 0,
+          reviewCount: product.reviewCount ? `${product.reviewCount}/5` : "0/5",
+          inStock: product.inStock !== undefined ? product.inStock : true,
+          category: product.category || "Unknown",
+          dateAdded: product.date || new Date().toISOString(),
+        }));
 
-        // This would be a real API call in production
-        // const response = await fetch('/api/user/wishlist');
-        // const data = await response.json();
-
-        // Mock wishlist data
-        const mockWishlistItems = [
-          {
-            id: "t-shirt-tape-details",
-            name: "T-shirt with Tape Details",
-            imageSrc: "/api/placeholder/240/320",
-            price: 120,
-            originalPrice: null,
-            discountPercentage: null,
-            rating: 4.5,
-            reviewCount: "4.5/5",
-            inStock: true,
-            category: "Casual",
-            dateAdded: "2025-03-15T10:30:00Z",
-          },
-          {
-            id: "vertical-striped-shirt",
-            name: "Vertical Striped Shirt",
-            imageSrc: "/api/placeholder/240/320",
-            price: 212,
-            originalPrice: 232,
-            discountPercentage: 9,
-            rating: 5.0,
-            reviewCount: "5.0/5",
-            inStock: true,
-            category: "Formal",
-            dateAdded: "2025-03-20T14:20:00Z",
-          },
-          {
-            id: "slim-fit-chinos",
-            name: "Slim Fit Chinos",
-            imageSrc: "/api/placeholder/240/320",
-            price: 175,
-            originalPrice: null,
-            discountPercentage: null,
-            rating: 4.6,
-            reviewCount: "4.6/5",
-            inStock: false,
-            category: "Formal",
-            dateAdded: "2025-04-01T09:45:00Z",
-          },
-        ];
-
-        setWishlistItems(mockWishlistItems);
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
+        setWishlistItems(formattedItems);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching wishlist:", err);
+        setError(err.message || "Failed to load wishlist");
       } finally {
         setLoading(false);
       }
@@ -77,19 +43,36 @@ const WishlistPage = () => {
   }, []);
 
   // Handle removing an item from wishlist
-  const handleRemoveFromWishlist = (itemId) => {
-    // In a real app, this would call an API to remove the item
-    const updatedWishlist = wishlistItems.filter((item) => item.id !== itemId);
-    setWishlistItems(updatedWishlist);
-    toast.success("Item removed from wishlist");
+  const handleRemoveFromWishlist = async (itemId) => {
+    try {
+      await wishlistService.removeFromWishlist(itemId);
+      // Update state to remove the item with matching _id
+      setWishlistItems((prevItems) =>
+        prevItems.filter((item) => item._id !== itemId)
+      );
+      toast.success("Item removed from wishlist");
+    } catch (err) {
+      console.error("Error removing item from wishlist:", err);
+      toast.error("Failed to remove item from wishlist");
+    }
   };
 
   // Handle adding an item to cart
-  const handleAddToCart = (item) => {
-    // In a real app, this would call an API to add the item to cart
-    toast.success(`${item.name} added to your cart!`);
-    // Optionally remove from wishlist after adding to cart
-    // handleRemoveFromWishlist(item.id);
+  const handleAddToCart = async (item) => {
+    try {
+      const cartItem = {
+        productId: item._id, // Use _id consistently
+        quantity: 1,
+        size: "Medium",
+        color: "Default",
+      };
+      await cartService.addToCart(cartItem);
+      toast.success(`${item.name} added to your cart!`);
+      // Do NOT call handleRemoveFromWishlist here
+    } catch (err) {
+      console.error("Error adding item to cart:", err);
+      toast.error("Failed to add item to cart");
+    }
   };
 
   // Navigate to product page
@@ -111,6 +94,21 @@ const WishlistPage = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+        <h2 className="text-lg font-medium mb-2">Error Loading Wishlist</h2>
+        <p className="text-gray-500 mb-4">{error}</p>
+        <button
+          className="bg-black text-white px-6 py-2 rounded-full"
+          onClick={() => navigate("/new-arrivals")}
+        >
+          Explore Products
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">My Wishlist</h1>
@@ -118,7 +116,6 @@ const WishlistPage = () => {
       {wishlistItems.length > 0 ? (
         <div>
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
-            {/* Wishlist Header (desktop) */}
             <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200">
               <div className="md:col-span-6">
                 <span className="text-sm font-medium">Product</span>
@@ -134,16 +131,14 @@ const WishlistPage = () => {
               </div>
             </div>
 
-            {/* Wishlist Items */}
             <div className="divide-y divide-gray-100">
               {wishlistItems.map((item) => (
-                <div key={item.id} className="px-6 py-4">
+                <div key={item._id} className="px-6 py-4">
                   <div className="md:grid md:grid-cols-12 gap-4 items-center">
-                    {/* Product Info */}
                     <div className="md:col-span-6 flex items-center mb-4 md:mb-0">
                       <div
                         className="w-16 h-16 bg-gray-100 rounded-md mr-4 cursor-pointer"
-                        onClick={() => navigateToProduct(item.id)}
+                        onClick={() => navigateToProduct(item._id)}
                       >
                         <img
                           src={item.imageSrc}
@@ -154,7 +149,7 @@ const WishlistPage = () => {
                       <div>
                         <h3
                           className="font-medium hover:underline cursor-pointer"
-                          onClick={() => navigateToProduct(item.id)}
+                          onClick={() => navigateToProduct(item._id)}
                         >
                           {item.name}
                         </h3>
@@ -167,7 +162,6 @@ const WishlistPage = () => {
                       </div>
                     </div>
 
-                    {/* Price */}
                     <div className="md:col-span-2 mb-4 md:mb-0">
                       <div className="flex md:block items-center">
                         <span className="text-sm font-medium md:hidden mr-2">
@@ -186,7 +180,6 @@ const WishlistPage = () => {
                       </div>
                     </div>
 
-                    {/* Stock Status */}
                     <div className="md:col-span-2 mb-4 md:mb-0">
                       <div className="flex md:block items-center">
                         <span className="text-sm font-medium md:hidden mr-2">
@@ -204,7 +197,6 @@ const WishlistPage = () => {
                       </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="md:col-span-2 flex justify-start md:justify-end space-x-2">
                       <button
                         className={`p-2 rounded-full ${
@@ -220,7 +212,7 @@ const WishlistPage = () => {
                       </button>
                       <button
                         className="p-2 rounded-full bg-red-50 text-red-500"
-                        onClick={() => handleRemoveFromWishlist(item.id)}
+                        onClick={() => handleRemoveFromWishlist(item._id)}
                         title="Remove from Wishlist"
                       >
                         <Trash2 size={16} />
@@ -232,17 +224,22 @@ const WishlistPage = () => {
             </div>
           </div>
 
-          {/* Move All to Cart Button */}
           <div className="flex justify-end">
             <button
               className="bg-black text-white px-4 py-2 rounded-md flex items-center"
-              onClick={() => {
+              onClick={async () => {
                 const inStockItems = wishlistItems.filter(
                   (item) => item.inStock
                 );
                 if (inStockItems.length > 0) {
-                  inStockItems.forEach((item) => handleAddToCart(item));
-                  toast.success("All available items added to cart");
+                  try {
+                    for (const item of inStockItems) {
+                      await handleAddToCart(item);
+                    }
+                    toast.success("All available items added to cart");
+                  } catch (err) {
+                    toast.error("Failed to add some items to cart");
+                  }
                 } else {
                   toast.error("No items in stock to add to cart");
                 }

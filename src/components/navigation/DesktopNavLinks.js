@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 
 const DesktopNavLinks = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const navItems = [
     {
@@ -14,40 +14,92 @@ const DesktopNavLinks = () => {
       dropdownItems: [
         {
           label: "Men",
+          category: "Men",
           path: "/category/Men",
-          items: [
-            { name: "T-Shirts", path: "/category/Men/T-Shirts" },
-            { name: "Shirts", path: "/category/Men/Shirts" },
-            { name: "Jeans", path: "/category/Men/Jeans" },
-            { name: "Jackets", path: "/category/Men/Jackets" },
+          subcategories: [
+            {
+              name: "T-Shirts",
+              subcategory: "T-Shirts",
+              path: "/category/Men/T-Shirts",
+            },
+            {
+              name: "Shirts",
+              subcategory: "Shirts",
+              path: "/category/Men/Shirts",
+            },
+            {
+              name: "Jeans",
+              subcategory: "Jeans",
+              path: "/category/Men/Jeans",
+            },
+            {
+              name: "Jackets",
+              subcategory: "Jackets",
+              path: "/category/Men/Jackets",
+            },
           ],
         },
         {
           label: "Women",
+          category: "Women",
           path: "/category/Women",
-          items: [
-            { name: "Dresses", path: "/category/Women/Dresses" },
-            { name: "Tops", path: "/category/Women/Tops" },
-            { name: "Jeans", path: "/category/Women/Jeans" },
-            { name: "Jackets", path: "/category/Women/Jackets" },
+          subcategories: [
+            {
+              name: "Dresses",
+              subcategory: "Dresses",
+              path: "/category/Women/Dresses",
+            },
+            { name: "Tops", subcategory: "Tops", path: "/category/Women/Tops" },
+            {
+              name: "Jeans",
+              subcategory: "Jeans",
+              path: "/category/Women/Jeans",
+            },
+            {
+              name: "Jackets",
+              subcategory: "Jackets",
+              path: "/category/Women/Jackets",
+            },
           ],
         },
         {
           label: "Kids",
+          category: "Kids",
           path: "/category/Kids",
-          items: [
-            { name: "Boys", path: "/category/Kids/Boys" },
-            { name: "Girls", path: "/category/Kids/Girls" },
-            { name: "Infants", path: "/category/Kids/Infants" },
+          subcategories: [
+            { name: "Boys", subcategory: "Boys", path: "/category/Kids/Boys" },
+            {
+              name: "Girls",
+              subcategory: "Girls",
+              path: "/category/Kids/Girls",
+            },
+            {
+              name: "Infants",
+              subcategory: "Infants",
+              path: "/category/Kids/Infants",
+            },
           ],
         },
         {
           label: "Accessories",
+          category: "Accessories",
           path: "/category/Accessories",
-          items: [
-            { name: "Bags", path: "/category/Accessories/Bags" },
-            { name: "Watches", path: "/category/Accessories/Watches" },
-            { name: "Jewelry", path: "/category/Accessories/Jewelry" },
+          subcategories: [
+            {
+              name: "Bags",
+              subcategory: "Bags",
+              path: "/category/Accessories/Bags",
+            },
+            {
+              name: "Watches",
+              subcategory: "Watches",
+              path: "/category/Accessories/Watches",
+            },
+            {
+              name: "Jewelry",
+              subcategory: "Jewelry",
+              path: "/category/Accessories/Jewelry",
+            },
           ],
         },
       ],
@@ -62,7 +114,7 @@ const DesktopNavLinks = () => {
       id: "new",
       label: "New Arrivals",
       hasDropdown: false,
-      path: "/new-arrivals",
+      path: "/products/new-arrivals",
     },
     {
       id: "contact-us",
@@ -72,10 +124,10 @@ const DesktopNavLinks = () => {
     },
   ];
 
-  // const handleNavigate = (path) => {
-  //   navigate(path);
-  //   setActiveDropdown(null);
-  // };
+  const handleNavigate = (path) => {
+    navigate(path);
+    setActiveDropdown(null);
+  };
 
   return (
     <div className="hidden md:flex space-x-6 text-sm">
@@ -85,7 +137,7 @@ const DesktopNavLinks = () => {
             className="flex items-center cursor-pointer py-2"
             onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.id)}
             onMouseLeave={() => setActiveDropdown(null)}
-            // onClick={() => !item.hasDropdown && handleNavigate(item.path)}
+            onClick={() => !item.hasDropdown && handleNavigate(item.path)}
           >
             {item.label}
             {item.hasDropdown && (
@@ -104,18 +156,18 @@ const DesktopNavLinks = () => {
                 <div key={idx} className="flex-1 min-w-40">
                   <h3
                     className="font-medium mb-2 cursor-pointer hover:text-gray-600"
-                    // onClick={() => handleNavigate(category.path)}
+                    onClick={() => handleNavigate(category.path)}
                   >
                     {category.label}
                   </h3>
                   <ul className="space-y-1">
-                    {category.items.map((subItem, subIdx) => (
+                    {category.subcategories.map((subcategory, subIdx) => (
                       <li
                         key={subIdx}
                         className="text-gray-600 hover:text-black cursor-pointer"
-                        // onClick={() => handleNavigate(subItem.path)}
+                        onClick={() => handleNavigate(subcategory.path)}
                       >
-                        {subItem.name}
+                        {subcategory.name}
                       </li>
                     ))}
                   </ul>

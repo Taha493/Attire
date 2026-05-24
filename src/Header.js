@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Menu, ShoppingCart, User, Heart } from "lucide-react";
 import DesktopNavLinks from "./components/navigation/DesktopNavLinks";
 import SearchBar from "./components/navigation/SearchBar";
-// import { cartService, wishlistService, authService } from "./services/api";
+import { cartService, wishlistService, authService } from "./services/api";
 
 const Header = ({ setMobileMenuOpen, isLoggedIn }) => {
   const navigate = useNavigate();
@@ -15,16 +15,16 @@ const Header = ({ setMobileMenuOpen, isLoggedIn }) => {
     const fetchCounts = async () => {
       if (isLoggedIn) {
         try {
-          // Fetch cart data
-          // const cartData = await cartService.getCart();
-          // if (cartData && cartData.items) {
-          //   setCartItemCount(cartData.items.length);
-          // }
-          // // Fetch wishlist data
-          // const wishlistData = await wishlistService.getWishlist();
-          // if (wishlistData) {
-          //   setWishlistCount(wishlistData.count || 0);
-          // }
+          //Fetch cart data
+          const cartData = await cartService.getCart();
+          if (cartData && cartData.items) {
+            setCartItemCount(cartData.items.length);
+          }
+          // Fetch wishlist data
+          const wishlistData = await wishlistService.getWishlist();
+          if (wishlistData) {
+            setWishlistCount(wishlistData.count || 0);
+          }
         } catch (error) {
           console.error("Error fetching cart/wishlist data:", error);
         }
@@ -92,7 +92,7 @@ const Header = ({ setMobileMenuOpen, isLoggedIn }) => {
           navigateToHome();
         }}
       >
-        ATTIRE
+        ATTIRE.
       </a>
 
       {/* Desktop Navigation */}

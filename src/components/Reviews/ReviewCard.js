@@ -2,6 +2,7 @@
 import React from "react";
 
 function ReviewCard({ review, isBlurred }) {
+  console.log("ReviewCard rendered with review:", review);
   // Render stars based on actual rating
   const renderStars = (rating) => {
     return (

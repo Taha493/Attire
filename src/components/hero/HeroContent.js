@@ -1,7 +1,14 @@
 import React from "react";
 import Stats from "./Stats";
+import { useNavigate } from "react-router-dom";
 
 const HeroContent = () => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/categories");
+  };
+
   return (
     <div className="md:w-1/2 mb-8 md:mb-0 text-center md:text-left px-2 sm:px-0">
       <h1 className="font-plak text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
@@ -16,7 +23,10 @@ const HeroContent = () => {
         designed to bring out your individuality and cater to your sense of
         style.
       </p>
-      <button className="bg-black text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-medium text-sm sm:text-base transition-all hover:bg-gray-800">
+      <button
+        onClick={handleClick}
+        className="bg-black text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-medium text-sm sm:text-base transition-all hover:bg-gray-800"
+      >
         Shop Now
       </button>
 

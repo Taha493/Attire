@@ -1,125 +1,44 @@
-// src/components/user/OrderHistory.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Search } from "lucide-react";
+import { orderService } from "../../services/api";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
-
       try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // This would be a real API call in production
-        // const response = await fetch('/api/user/orders');
-        // const data = await response.json();
-
-        // Mock order data
-        const mockOrders = [
-          {
-            id: "ORD-123456",
-            date: "2025-03-15T10:30:00Z",
-            total: 279.99,
-            status: "delivered",
-            paymentStatus: "paid",
-            items: [
-              {
-                id: "t-shirt-tape-details",
-                name: "T-shirt with Tape Details",
-                imageSrc: "/api/placeholder/80/80",
-                price: 120,
-                quantity: 1,
-                variant: "Black / Large",
-              },
-              {
-                id: "checkered-shirt",
-                name: "Checkered Shirt",
-                imageSrc: "/api/placeholder/80/80",
-                price: 180,
-                quantity: 1,
-                variant: "Blue / Medium",
-              },
-            ],
-            shippingMethod: "Standard Shipping",
-            trackingNumber: "TRK12345678",
-          },
-          {
-            id: "ORD-789012",
-            date: "2025-03-01T14:20:00Z",
-            total: 145.0,
-            status: "delivered",
-            paymentStatus: "paid",
-            items: [
-              {
-                id: "courage-graphic-tshirt",
-                name: "Courage Graphic T-shirt",
-                imageSrc: "/api/placeholder/80/80",
-                price: 145,
-                quantity: 1,
-                variant: "White / Medium",
-              },
-            ],
-            shippingMethod: "Express Shipping",
-            trackingNumber: "TRK98765432",
-          },
-          {
-            id: "ORD-345678",
-            date: "2025-04-10T09:15:00Z",
-            total: 324.5,
-            status: "processing",
-            paymentStatus: "paid",
-            items: [
-              {
-                id: "vertical-striped-shirt",
-                name: "Vertical Striped Shirt",
-                imageSrc: "/api/placeholder/80/80",
-                price: 212,
-                quantity: 1,
-                variant: "Green / Large",
-              },
-              {
-                id: "loose-fit-bermuda-shorts",
-                name: "Loose Fit Bermuda Shorts",
-                imageSrc: "/api/placeholder/80/80",
-                price: 80,
-                quantity: 1,
-                variant: "Beige / Large",
-              },
-            ],
-            shippingMethod: "Standard Shipping",
-            trackingNumber: null,
-          },
-          {
-            id: "ORD-456789",
-            date: "2025-04-18T16:45:00Z",
-            total: 210.0,
-            status: "shipped",
-            paymentStatus: "paid",
-            items: [
-              {
-                id: "faded-skinny-jeans",
-                name: "Faded Skinny Jeans",
-                imageSrc: "/api/placeholder/80/80",
-                price: 210,
-                quantity: 1,
-                variant: "Blue / Medium",
-              },
-            ],
-            shippingMethod: "Express Shipping",
-            trackingNumber: "TRK45678901",
-          },
-        ];
-
-        setOrders(mockOrders);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
+        const response = await orderService.getOrders();
+        console.log(response);
+        // Map backend response to frontend format
+        const formattedOrders = response.orders.map((order) => ({
+          id: order._id,
+          date: order.date,
+          total: order.total,
+          status: order.status,
+          paymentStatus: order.paymentStatus || "paid",
+          items: order.items.map((item) => ({
+            id: item.product || item._id,
+            name: item.name,
+            imageSrc: item.imageSrc || "/api/placeholder/80/80",
+            price: item.price,
+            quantity: item.quantity,
+            variant: `${item.color} / ${item.size}`,
+          })),
+          shippingMethod: order.shippingMethod || "Standard Shipping",
+          trackingNumber: order.trackingNumber || null,
+        }));
+        setOrders(formattedOrders);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError(err.message || "Failed to load order history");
       } finally {
         setLoading(false);
       }
@@ -239,6 +158,13 @@ const OrderHistory = () => {
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12 bg-white rounded-lg">
+          <div className="text-red-500 mb-2">{error}</div>
+          <p className="text-sm text-gray-400">
+            Please try again later or contact support.
+          </p>
         </div>
       ) : filteredOrders.length > 0 ? (
         <div className="space-y-4">

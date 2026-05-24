@@ -1,6 +1,18 @@
 import React from "react";
 
-const StarRating = ({ rating, reviewCount }) => {
+const StarRating = ({ rating, reviewCount, size = "sm" }) => {
+  // Define size classes for stars and text
+  const sizeClasses = {
+    xs: { star: "w-2 h-2", text: "text-[10px]" },
+    sm: { star: "w-3 h-3 sm:w-4 sm:h-4", text: "text-xs" },
+    md: { star: "w-4 h-4 sm:w-5 sm:h-5", text: "text-sm" },
+    lg: { star: "w-5 h-5 sm:w-6 sm:h-6", text: "text-base" },
+    xl: { star: "w-6 h-6 sm:w-7 sm:h-7", text: "text-lg" },
+  };
+
+  const { star: starSize, text: textSize } =
+    sizeClasses[size] || sizeClasses.sm;
+
   return (
     <div className="flex items-center">
       {[...Array(5)].map((_, i) => {
@@ -12,7 +24,7 @@ const StarRating = ({ rating, reviewCount }) => {
           <div key={i} className="relative">
             {/* Background star (gray) */}
             <svg
-              className="w-3 h-3 sm:w-4 sm:h-4 text-gray-300"
+              className={`${starSize} text-gray-300`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -26,7 +38,7 @@ const StarRating = ({ rating, reviewCount }) => {
                 style={{ width: fullStar ? "100%" : "50%" }}
               >
                 <svg
-                  className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400"
+                  className={`${starSize} text-yellow-400`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -37,7 +49,7 @@ const StarRating = ({ rating, reviewCount }) => {
           </div>
         );
       })}
-      <span className="text-xs text-gray-500 ml-1">{reviewCount}</span>
+      <span className={`${textSize} text-gray-500 ml-1`}>{reviewCount}</span>
     </div>
   );
 };

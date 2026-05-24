@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, Plus, Trash2, Check } from "lucide-react";
 import { toast } from "react-hot-toast";
-// import { userService } from "../../services/api";
+import { userService } from "../../services/api";
 
 const PaymentMethods = () => {
   const [isAddingCard, setIsAddingCard] = useState(false);
@@ -16,13 +16,14 @@ const PaymentMethods = () => {
   });
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cardBrand, setCardBrand] = useState("");
+  const [isCardValid, setIsCardValid] = useState(null);
 
-  // Fetch payment methods on component mount
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
-        // const methods = await userService.getPaymentMethods();
-        // setPaymentMethods(methods);
+        const methods = await userService.getPaymentMethods();
+        setPaymentMethods(methods);
       } catch (error) {
         console.error("Error fetching payment methods:", error);
         toast.error("Failed to load payment methods");
@@ -34,7 +35,37 @@ const PaymentMethods = () => {
     fetchPaymentMethods();
   }, []);
 
-  // Handle form change
+  const validateCardNumber = (number) => {
+    const digits = number.replace(/\s/g, "").split("").map(Number);
+    if (digits.length < 13 || digits.length > 19) return false;
+
+    let sum = 0;
+    let isEven = false;
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = digits[i];
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      isEven = !isEven;
+    }
+    return sum % 10 === 0;
+  };
+
+  const detectCardBrand = (number) => {
+    const cleanNumber = number.replace(/\s/g, "");
+    if (!cleanNumber) return "";
+
+    if (/^4/.test(cleanNumber)) return "Visa";
+    if (/^5[1-5]/.test(cleanNumber)) return "Mastercard";
+    if (/^3[47]/.test(cleanNumber)) return "Amex";
+    if (/^6(?:011|5)/.test(cleanNumber)) return "Discover";
+    if (/^35(?:2[89]|[3-8])/.test(cleanNumber)) return "JCB";
+    if (/^62/.test(cleanNumber)) return "UnionPay";
+    return "Unknown";
+  };
+
   const handleCardFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     setCardForm({
@@ -43,7 +74,6 @@ const PaymentMethods = () => {
     });
   };
 
-  // Format card number with spaces
   const formatCardNumber = (value) => {
     return value
       .replace(/\s/g, "")
@@ -51,29 +81,34 @@ const PaymentMethods = () => {
       .trim();
   };
 
-  // Handle card number input with formatting
   const handleCardNumberChange = (e) => {
     let value = e.target.value.replace(/[^\d]/g, "");
     if (value.length > 16) value = value.slice(0, 16);
 
+    const formattedValue = formatCardNumber(value);
     setCardForm({
       ...cardForm,
-      cardNumber: formatCardNumber(value),
+      cardNumber: formattedValue,
     });
+
+    const isValid = validateCardNumber(value);
+    setIsCardValid(value.length >= 13 ? isValid : null);
+    setCardBrand(detectCardBrand(value));
   };
 
-  // Handle expiry date change
   const handleExpiryChange = (e, type) => {
     let value = e.target.value.replace(/[^\d]/g, "");
 
     if (type === "month") {
       if (value.length > 2) value = value.slice(0, 2);
-      if (parseInt(value) > 12) value = "12";
+      if (value && parseInt(value) > 12) value = "12";
     } else {
       if (value.length > 2) value = value.slice(0, 2);
-      const currentYear = new Date().getFullYear() % 100;
-      if (value && parseInt(value) < currentYear)
-        value = currentYear.toString();
+      // Only validate if the user has entered a complete two-digit year
+      if (value.length === 2) {
+        const currentYear = new Date().getFullYear() % 100;
+        if (parseInt(value) < currentYear) value = currentYear.toString();
+      }
     }
 
     setCardForm({
@@ -82,7 +117,6 @@ const PaymentMethods = () => {
     });
   };
 
-  // Handle CVV change
   const handleCvvChange = (e) => {
     let value = e.target.value.replace(/[^\d]/g, "");
     if (value.length > 4) value = value.slice(0, 4);
@@ -93,12 +127,11 @@ const PaymentMethods = () => {
     });
   };
 
-  // Handle card form submission
   const handleAddCardSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
-    if (cardForm.cardNumber.replace(/\s/g, "").length < 16) {
+    const cleanCardNumber = cardForm.cardNumber.replace(/\s/g, "");
+    if (!isCardValid || cleanCardNumber.length < 13) {
       toast.error("Please enter a valid card number");
       return;
     }
@@ -119,29 +152,18 @@ const PaymentMethods = () => {
     }
 
     try {
-      // Determine card brand from first digit
-      let cardBrand = "Unknown";
-      const firstDigit = cardForm.cardNumber.charAt(0);
-      if (firstDigit === "4") cardBrand = "Visa";
-      else if (firstDigit === "5") cardBrand = "Mastercard";
-      else if (firstDigit === "3") cardBrand = "Amex";
-      else if (firstDigit === "6") cardBrand = "Discover";
-
-      // Format payment data for API
       const paymentData = {
-        type: "credit", // Default to credit card
-        cardBrand,
-        lastFour: cardForm.cardNumber.replace(/\s/g, "").slice(-4),
+        type: "credit",
+        cardBrand: cardBrand || "Unknown",
+        lastFour: cleanCardNumber.slice(-4),
         expiryMonth: parseInt(cardForm.expiryMonth),
         expiryYear: parseInt(cardForm.expiryYear),
         isDefault: cardForm.isDefault,
       };
 
-      // Add payment method
-      // const updatedMethods = await userService.addPaymentMethod(paymentData);
-      // setPaymentMethods(updatedMethods);
+      const updatedMethods = await userService.addPaymentMethod(paymentData);
+      setPaymentMethods(updatedMethods);
 
-      // Success message and reset form
       toast.success("Payment method added successfully");
       setIsAddingCard(false);
       setCardForm({
@@ -152,19 +174,20 @@ const PaymentMethods = () => {
         cvv: "",
         isDefault: false,
       });
+      setCardBrand("");
+      setIsCardValid(null);
     } catch (error) {
       console.error("Error adding payment method:", error);
       toast.error(error.message || "Failed to add payment method");
     }
   };
 
-  // Set a payment method as default
   const setDefaultPaymentMethod = async (paymentId) => {
     try {
-      // const updatedMethods = await userService.setDefaultPaymentMethod(
-      //   paymentId
-      // );
-      // setPaymentMethods(updatedMethods);
+      const updatedMethods = await userService.setDefaultPaymentMethod(
+        paymentId
+      );
+      setPaymentMethods(updatedMethods);
       toast.success("Default payment method updated");
     } catch (error) {
       console.error("Error setting default payment method:", error);
@@ -172,11 +195,10 @@ const PaymentMethods = () => {
     }
   };
 
-  // Delete a payment method
   const deletePaymentMethod = async (paymentId) => {
     try {
-      // const updatedMethods = await userService.deletePaymentMethod(paymentId);
-      // setPaymentMethods(updatedMethods);
+      const updatedMethods = await userService.deletePaymentMethod(paymentId);
+      setPaymentMethods(updatedMethods);
       toast.success("Payment method removed");
       setShowDeleteConfirm(null);
     } catch (error) {
@@ -185,7 +207,6 @@ const PaymentMethods = () => {
     }
   };
 
-  // Get card icon based on card brand
   const getCardIcon = (brand) => {
     switch (brand.toLowerCase()) {
       case "visa":
@@ -210,6 +231,18 @@ const PaymentMethods = () => {
         return (
           <div className="w-8 h-6 bg-orange-500 rounded text-white flex items-center justify-center text-xs font-bold">
             DISC
+          </div>
+        );
+      case "jcb":
+        return (
+          <div className="w-8 h-6 bg-green-600 rounded text-white flex items-center justify-center text-xs font-bold">
+            JCB
+          </div>
+        );
+      case "unionpay":
+        return (
+          <div className="w-8 h-6 bg-gray-600 rounded text-white flex items-center justify-center text-xs font-bold">
+            UP
           </div>
         );
       default:
@@ -248,27 +281,52 @@ const PaymentMethods = () => {
             <h2 className="text-lg font-bold">Add New Payment Method</h2>
             <button
               className="text-sm text-gray-600"
-              onClick={() => setIsAddingCard(false)}
+              onClick={() => {
+                setIsAddingCard(false);
+                setCardBrand("");
+                setIsCardValid(null);
+              }}
             >
               Cancel
             </button>
           </div>
 
           <form onSubmit={handleAddCardSubmit}>
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label className="block text-sm font-medium mb-1">
                 Card Number
               </label>
-              <input
-                type="text"
-                name="cardNumber"
-                value={cardForm.cardNumber}
-                onChange={handleCardNumberChange}
-                placeholder="1234 5678 9012 3456"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md"
-                maxLength={19} // 16 digits + 3 spaces
-                required
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  name="cardNumber"
+                  value={cardForm.cardNumber}
+                  onChange={handleCardNumberChange}
+                  placeholder="1234 5678 9012 3456"
+                  className={`w-full px-4 py-2 border rounded-md pr-12 ${
+                    isCardValid === false
+                      ? "border-red-500"
+                      : isCardValid
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
+                  maxLength={19}
+                  required
+                />
+                {cardBrand && (
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                    {getCardIcon(cardBrand)}
+                  </div>
+                )}
+              </div>
+              {isCardValid === false && (
+                <p className="text-red-500 text-xs mt-1">Invalid card number</p>
+              )}
+              {isCardValid === true && (
+                <p className="text-green-500 text-xs mt-1">
+                  Valid {cardBrand} card
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -349,6 +407,7 @@ const PaymentMethods = () => {
             <button
               type="submit"
               className="w-full bg-black text-white py-2 rounded-md"
+              disabled={isCardValid === false}
             >
               Add Payment Method
             </button>
@@ -356,7 +415,6 @@ const PaymentMethods = () => {
         </div>
       ) : null}
 
-      {/* Payment Methods List */}
       {paymentMethods && paymentMethods.length > 0 ? (
         <div className="space-y-4">
           {paymentMethods.map((method) => (
@@ -391,19 +449,19 @@ const PaymentMethods = () => {
                   {!method.isDefault && (
                     <>
                       <button
-                        onClick={() => setDefaultPaymentMethod(method.id)}
+                        onClick={() => setDefaultPaymentMethod(method._id)}
                         className="p-2 rounded-full hover:bg-gray-100"
                         title="Set as default"
                       >
                         <Check size={16} />
                       </button>
 
-                      {showDeleteConfirm === method.id ? (
+                      {showDeleteConfirm === method._id ? (
                         <div className="flex items-center space-x-2 bg-red-50 px-2 py-1 rounded">
                           <span className="text-xs">Delete?</span>
                           <button
                             className="text-xs text-red-500 font-medium"
-                            onClick={() => deletePaymentMethod(method.id)}
+                            onClick={() => deletePaymentMethod(method._id)}
                           >
                             Yes
                           </button>
@@ -416,7 +474,7 @@ const PaymentMethods = () => {
                         </div>
                       ) : (
                         <button
-                          onClick={() => setShowDeleteConfirm(method.id)}
+                          onClick={() => setShowDeleteConfirm(method._id)}
                           className="p-2 rounded-full hover:bg-gray-100 text-red-500"
                           title="Remove card"
                         >

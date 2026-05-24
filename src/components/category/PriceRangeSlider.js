@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef } from "react";
 
 const PriceRangeSlider = ({
-  minPrice = 50,
-  maxPrice = 200,
-  initialRange = [50, 200],
+  minPrice = 1,
+  maxPrice = 1000,
+  initialRange = [1, 1000],
   onChange,
 }) => {
   const [range, setRange] = useState(initialRange);

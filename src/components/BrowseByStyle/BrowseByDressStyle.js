@@ -1,30 +1,23 @@
-// src/components/BrowseByStyle/BrowseByDressStyle.js - Updated with API Integration
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
 import { categoryService } from "../../services/api";
 
 function BrowseByDressStyle() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch categories from the API
     const fetchCategories = async () => {
       setIsLoading(true);
       setError(null);
-
       try {
-        // Get all categories
         const allCategories = await categoryService.getCategories();
-
-        // Filter only dress style categories
         const dressStyleCategories = allCategories.filter(
           (category) => category.type === "dress-style"
         );
-
         setCategories(dressStyleCategories);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -34,18 +27,16 @@ function BrowseByDressStyle() {
         setIsLoading(false);
       }
     };
-
     fetchCategories();
   }, []);
 
-  // const handleViewAllCategories = () => {
-  //   navigate("/categories");
-  // };
+  const handleViewAllCategories = () => {
+    navigate("/categories");
+  };
 
-  // // Handle direct category navigation
-  // const handleCategoryClick = (categoryName) => {
-  //   navigate(`/category/${categoryName}`);
-  // };
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/category/${categoryName}`);
+  };
 
   if (isLoading) {
     return (
@@ -78,7 +69,7 @@ function BrowseByDressStyle() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="font-plak text-3xl font-black">BROWSE BY DRESS STYLE</h1>
         <button
-          // onClick={handleViewAllCategories}
+          onClick={handleViewAllCategories}
           className="text-sm hover:underline hidden sm:block"
         >
           View All
@@ -87,22 +78,19 @@ function BrowseByDressStyle() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {categories.map((category) => (
-          <div
+          <CategoryCard
             key={category._id}
-            // onClick={() => handleCategoryClick(category.name)}
-          >
-            <CategoryCard
-              title={category.name}
-              imageSrc={category.imageSrc}
-              productCount={category.productCount}
-            />
-          </div>
+            title={category.name}
+            imageSrc={category.imageSrc || "/api/placeholder/400/320"}
+            productCount={category.productCount}
+            onClick={() => handleCategoryClick(category.name)}
+          />
         ))}
       </div>
 
       <div className="mt-4 text-center sm:hidden">
         <button
-          // onClick={handleViewAllCategories}
+          onClick={handleViewAllCategories}
           className="border border-gray-300 text-sm py-2 px-4 rounded hover:bg-gray-50 transition-colors"
         >
           View All Categories
